@@ -1,0 +1,10 @@
+# HubPlus configuration
+# Change this to the exact Velocity server name players should be sent to.
+target-server: Lobby2
+
+messages:
+  prefix: '&8[&9Hub&b+&8] &8»&r '
+  already-connected: '&eYou are already connected to the target server.'
+  unavailable: '&cThe target server is currently unavailable.'
+  connection-failed: '&cCould not connect you to the target server.'
+  players-only: '&cOnly players can use this command.'
