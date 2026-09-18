@@ -1,43 +1,72 @@
-name: Build HubPlus
+name: Build and Release HubPlus
 
 on:
   push:
-  pull_request:
+    branches:
+      - main
   workflow_dispatch:
 
 permissions:
   contents: write
 
+env:
+  JAVA_VERSION: '21'
+  JAR_NAME: HubPlus-1.0.jar
+
 jobs:
   build:
+    name: Compile HubPlus
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
-      - name: Set up Java 21
+
+      - name: Set up Java
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: '21'
+          java-version: ${{ env.JAVA_VERSION }}
           cache: maven
-      - name: Build
-        run: mvn -B clean package
-      - name: Verify Velocity descriptor
+
+      - name: Build with Maven
+        run: mvn --batch-mode --update-snapshots clean package
+
+      - name: Locate compiled JAR
+        shell: bash
         run: |
-          test -f target/hubplus-1.0.0.jar
-          unzip -l target/hubplus-1.0.0.jar | grep -q 'velocity-plugin.json'
-      - name: Prepare release JAR
-        run: cp target/hubplus-1.0.0.jar target/HubPlus-1.0.jar
-      - name: Upload compiled artifact
+          set -euo pipefail
+          JAR=$(find target -maxdepth 1 -type f -name '*.jar' ! -name '*original*.jar' | head -n 1)
+          test -n "$JAR"
+          cp "$JAR" "target/${JAR_NAME}"
+          echo "Built: $JAR"
+
+      - name: Validate Velocity plugin descriptor
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f "target/${JAR_NAME}"
+          unzip -Z1 "target/${JAR_NAME}" | grep -Fx 'velocity-plugin.json'
+          unzip -p "target/${JAR_NAME}" velocity-plugin.json | tee /tmp/velocity-plugin.json
+          grep -q '"id"' /tmp/velocity-plugin.json
+          grep -q 'hubplus' /tmp/velocity-plugin.json
+
+      - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
           name: HubPlus-1.0
-          path: target/HubPlus-1.0.jar
-      - name: Publish GitHub release
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+          path: target/${{ env.JAR_NAME }}
+          if-no-files-found: error
+
+      - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v1.0-${{ github.run_number }}
-          name: HubPlus v1.0-${{ github.run_number }}
+          tag_name: hubplus-${{ github.run_number }}
+          name: HubPlus 1.0 build ${{ github.run_number }}
+          body: |
+            Automated HubPlus build.
+            
+            Install this JAR in the **Velocity proxy's plugins folder**.
           generate_release_notes: true
-          files: target/HubPlus-1.0.jar
+          files: target/${{ env.JAR_NAME }}
+          fail_on_unmatched_files: true
