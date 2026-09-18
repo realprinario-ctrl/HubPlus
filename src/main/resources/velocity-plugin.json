@@ -1,0 +1,8 @@
+{
+  "id": "hubplus",
+  "name": "HubPlus",
+  "version": "1.0.0",
+  "description": "Configurable Velocity hub and lobby command",
+  "authors": ["realprinario-ctrl"],
+  "main": "com.realpr.hubplus.HubPlusPlugin"
+}
