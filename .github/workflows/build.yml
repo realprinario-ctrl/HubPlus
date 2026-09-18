@@ -19,8 +19,10 @@ jobs:
           cache: maven
       - name: Build
         run: mvn -B package
-      - name: Upload plugin
+      - name: Rename compiled jar
+        run: cp target/hubplus-1.0.0.jar target/HubPlus-1.0.jar
+      - name: Upload compiled release
         uses: actions/upload-artifact@v4
         with:
-          name: HubPlus
-          path: target/*.jar
+          name: HubPlus-1.0
+          path: target/HubPlus-1.0.jar
