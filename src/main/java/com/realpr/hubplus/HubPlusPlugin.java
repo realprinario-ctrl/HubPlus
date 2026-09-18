@@ -4,6 +4,7 @@ import com.google.inject.Inject;
 import com.velocitypowered.api.command.SimpleCommand;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
+import com.velocitypowered.api.plugin.Plugin;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
 import com.velocitypowered.api.proxy.RegisteredServer;
@@ -18,6 +19,7 @@ import java.nio.file.Path;
 import java.util.Map;
 import java.util.Optional;
 
+@Plugin(id = "hubplus", name = "HubPlus", version = "1.0", authors = {"realprinario-ctrl"})
 public final class HubPlusPlugin {
     private final ProxyServer proxy;
     private final Path dataDirectory;
@@ -55,9 +57,7 @@ public final class HubPlusPlugin {
                         Object server = values.get("target-server");
                         if (server != null) targetServer = String.valueOf(server);
                         Object messages = values.get("messages");
-                        if (messages instanceof Map<?, ?> map && map.get("prefix") != null) {
-                            prefix = String.valueOf(map.get("prefix"));
-                        }
+                        if (messages instanceof Map<?, ?> map && map.get("prefix") != null) prefix = String.valueOf(map.get("prefix"));
                     }
                 }
             }
@@ -73,25 +73,18 @@ public final class HubPlusPlugin {
                 invocation.source().sendMessage(msg("&cOnly players can use this command."));
                 return;
             }
-
             Optional<RegisteredServer> destination = proxy.getServer(targetServer);
             if (destination.isEmpty()) {
                 player.sendMessage(msg("&cThe target server is unavailable."));
                 return;
             }
-
-            boolean alreadyConnected = player.getCurrentServer()
-                    .map(connection -> connection.getServerInfo().getName().equalsIgnoreCase(targetServer))
-                    .orElse(false);
+            boolean alreadyConnected = player.getCurrentServer().map(connection -> connection.getServerInfo().getName().equalsIgnoreCase(targetServer)).orElse(false);
             if (alreadyConnected) {
                 player.sendMessage(msg("&eYou are already connected to the target server."));
                 return;
             }
-
             player.createConnectionRequest(destination.get()).connect().thenAccept(result -> {
-                if (!result.isSuccessful()) {
-                    player.sendMessage(msg("&cCould not connect you to the target server."));
-                }
+                if (!result.isSuccessful()) player.sendMessage(msg("&cCould not connect you to the target server."));
             });
         }
     }
