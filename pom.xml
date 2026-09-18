@@ -3,30 +3,53 @@
   <groupId>com.realpr</groupId>
   <artifactId>hubplus</artifactId>
   <version>1.0.0</version>
+
   <properties>
     <maven.compiler.release>21</maven.compiler.release>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
+
   <repositories>
-    <repository><id>papermc</id><url>https://repo.papermc.io/repository/maven-public/</url></repository>
+    <repository>
+      <id>papermc</id>
+      <url>https://repo.papermc.io/repository/maven-public/</url>
+    </repository>
   </repositories>
+
   <dependencies>
-    <dependency><groupId>com.velocitypowered</groupId><artifactId>velocity-api</artifactId><version>3.4.0-SNAPSHOT</version><scope>provided</scope></dependency>
-    <dependency><groupId>org.yaml</groupId><artifactId>snakeyaml</artifactId><version>2.4</version></dependency>
+    <dependency>
+      <groupId>com.velocitypowered</groupId>
+      <artifactId>velocity-api</artifactId>
+      <version>3.4.0-SNAPSHOT</version>
+      <scope>provided</scope>
+    </dependency>
   </dependencies>
+
   <build>
+    <finalName>HubPlus-1.0</finalName>
     <plugins>
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId><artifactId>maven-compiler-plugin</artifactId><version>3.14.0</version>
-        <configuration>
-          <annotationProcessorPaths>
-            <path><groupId>com.velocitypowered</groupId><artifactId>velocity-api</artifactId><version>3.4.0-SNAPSHOT</version></path>
-          </annotationProcessorPaths>
-        </configuration>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.14.0</version>
       </plugin>
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId><artifactId>maven-shade-plugin</artifactId><version>3.6.0</version>
-        <executions><execution><phase>package</phase><goals><goal>shade</goal></goals><configuration><createDependencyReducedPom>false</createDependencyReducedPom><minimizeJar>false</minimizeJar></configuration></execution></executions>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-resources-plugin</artifactId>
+        <version>3.3.1</version>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <version>3.4.2</version>
+        <configuration>
+          <archive>
+            <manifestEntries>
+              <Implementation-Title>HubPlus</Implementation-Title>
+              <Implementation-Version>1.0.0</Implementation-Version>
+            </manifestEntries>
+          </archive>
+        </configuration>
       </plugin>
     </plugins>
   </build>
